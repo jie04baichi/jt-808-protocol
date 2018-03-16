@@ -6,11 +6,11 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 
+import cn.hylexus.jt808.common.PackageData;
+import cn.hylexus.jt808.common.Session;
+import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.server.SessionManager;
 import cn.hylexus.jt808.service.codec.MsgEncoder;
-import cn.hylexus.jt808.vo.PackageData;
-import cn.hylexus.jt808.vo.PackageData.MsgHeader;
-import cn.hylexus.jt808.vo.Session;
 import cn.hylexus.jt808.vo.req.TerminalAuthenticationMsg;
 import cn.hylexus.jt808.vo.req.TerminalRegisterMsg;
 import cn.hylexus.jt808.vo.resp.ServerCommonRespMsgBody;

@@ -2,8 +2,8 @@ package cn.hylexus.jt808.vo.req;
 
 import java.util.Arrays;
 
+import cn.hylexus.jt808.common.PackageData;
 import cn.hylexus.jt808.common.TPMSConsts;
-import cn.hylexus.jt808.vo.PackageData;
 
 /**
  * 终端鉴权消息

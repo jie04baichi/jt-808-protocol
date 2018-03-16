@@ -1,4 +1,4 @@
-package cn.hylexus.jt808.vo;
+package cn.hylexus.jt808.common;
 
 import java.net.SocketAddress;
 

@@ -2,7 +2,7 @@ package cn.hylexus.jt808.vo.req;
 
 import java.util.Arrays;
 
-import cn.hylexus.jt808.vo.PackageData;
+import cn.hylexus.jt808.common.PackageData;
 
 /**
  * 终端注册消息

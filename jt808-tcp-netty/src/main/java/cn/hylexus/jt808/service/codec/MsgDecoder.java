@@ -9,11 +9,11 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.hylexus.jt808.common.PackageData;
 import cn.hylexus.jt808.common.TPMSConsts;
+import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.util.BCD8421Operater;
 import cn.hylexus.jt808.util.BitOperator;
-import cn.hylexus.jt808.vo.PackageData;
-import cn.hylexus.jt808.vo.PackageData.MsgHeader;
 import cn.hylexus.jt808.vo.req.TerminalRegisterMsg;
 import cn.hylexus.jt808.vo.req.TerminalRegisterMsg.TerminalRegInfo;
 

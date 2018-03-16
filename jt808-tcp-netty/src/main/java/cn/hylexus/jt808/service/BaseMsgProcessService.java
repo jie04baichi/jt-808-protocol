@@ -3,8 +3,8 @@ package cn.hylexus.jt808.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.hylexus.jt808.common.Session;
 import cn.hylexus.jt808.server.SessionManager;
-import cn.hylexus.jt808.vo.Session;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;

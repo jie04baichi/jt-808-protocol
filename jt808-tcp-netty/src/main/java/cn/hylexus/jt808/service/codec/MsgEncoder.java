@@ -2,11 +2,11 @@ package cn.hylexus.jt808.service.codec;
 
 import java.util.Arrays;
 
+import cn.hylexus.jt808.common.PackageData;
+import cn.hylexus.jt808.common.Session;
 import cn.hylexus.jt808.common.TPMSConsts;
 import cn.hylexus.jt808.util.BitOperator;
 import cn.hylexus.jt808.util.JT808ProtocolUtils;
-import cn.hylexus.jt808.vo.PackageData;
-import cn.hylexus.jt808.vo.Session;
 import cn.hylexus.jt808.vo.req.TerminalRegisterMsg;
 import cn.hylexus.jt808.vo.resp.ServerCommonRespMsgBody;
 import cn.hylexus.jt808.vo.resp.TerminalRegisterMsgRespBody;

@@ -1,9 +1,9 @@
 package cn.hylexus.jt808.vo.req;
 
 
-import cn.hylexus.jt808.vo.PackageData;
-
 import java.util.Date;
+
+import cn.hylexus.jt808.common.PackageData;
 
 /**
  * 位置信息汇报消息

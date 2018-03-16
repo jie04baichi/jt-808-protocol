@@ -4,13 +4,13 @@ import cn.hylexus.jt808.vo.req.LocationInfoUploadMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.hylexus.jt808.common.PackageData;
+import cn.hylexus.jt808.common.Session;
 import cn.hylexus.jt808.common.TPMSConsts;
+import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.server.SessionManager;
 import cn.hylexus.jt808.service.TerminalMsgProcessService;
 import cn.hylexus.jt808.service.codec.MsgDecoder;
-import cn.hylexus.jt808.vo.PackageData;
-import cn.hylexus.jt808.vo.PackageData.MsgHeader;
-import cn.hylexus.jt808.vo.Session;
 import cn.hylexus.jt808.vo.req.TerminalAuthenticationMsg;
 import cn.hylexus.jt808.vo.req.TerminalRegisterMsg;
 import io.netty.buffer.ByteBuf;

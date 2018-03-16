@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import cn.hylexus.jt808.vo.Session;
+import cn.hylexus.jt808.common.Session;
 
 public class SessionManager {
 
