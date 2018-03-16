@@ -109,7 +109,11 @@ public class JT808ProtocolUtils {
 				if (bs[i] == 0x7e) {
 					baos.write(0x7d);
 					baos.write(0x02);
-				} else {
+				}else if (bs[i] == 0x7d) {
+					baos.write(0x7d);
+					baos.write(0x01);
+				} 
+				else {
 					baos.write(bs[i]);
 				}
 			}

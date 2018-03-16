@@ -330,8 +330,8 @@ public class BitOperator {
 	}
 
 	public float byte2Float(byte[] bs) {
-		return Float.intBitsToFloat(
-				(((bs[3] & 0xFF) << 24) + ((bs[2] & 0xFF) << 16) + ((bs[1] & 0xFF) << 8) + (bs[0] & 0xFF)));
+		float num = (((bs[0] & 0xFF) << 24) + ((bs[1] & 0xFF) << 16) + ((bs[2] & 0xFF) << 8) + (bs[3] & 0xFF));
+		return num;
 	}
 
 	public float byteBE2Float(byte[] bytes) {

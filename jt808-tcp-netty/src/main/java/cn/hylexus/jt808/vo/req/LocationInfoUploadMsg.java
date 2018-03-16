@@ -18,15 +18,15 @@ public class LocationInfoUploadMsg extends PackageData {
 	// byte[4-7] 状态(DWORD(32))
 	private int statusField;
 	// byte[8-11] 纬度(DWORD(32))
-	private float latitude;
+	private int latitude;
 	// byte[12-15] 经度(DWORD(32))
-	private float longitude;
+	private int longitude;
 	// byte[16-17] 高程(WORD(16)) 海拔高度，单位为米（ m）
 	// TODO ==>int?海拔
 	private int elevation;
 	// byte[18-19] 速度(WORD) 1/10km/h
 	// TODO ==>float?速度
-	private float speed;
+	private int speed;
 	// byte[20-21] 方向(WORD) 0-359，正北为 0，顺时针
 	private int direction;
 	// byte[22-x] 时间(BCD[6]) YY-MM-DD-hh-mm-ss
@@ -44,19 +44,19 @@ public class LocationInfoUploadMsg extends PackageData {
 		this.msgHeader = packageData.getMsgHeader();
 	}
 
-	public float getLatitude() {
+	public int getLatitude() {
 		return latitude;
 	}
 
-	public void setLatitude(float latitude) {
+	public void setLatitude(int latitude) {
 		this.latitude = latitude;
 	}
 
-	public float getLongitude() {
+	public int getLongitude() {
 		return longitude;
 	}
 
-	public void setLongitude(float longitude) {
+	public void setLongitude(int longitude) {
 		this.longitude = longitude;
 	}
 
@@ -68,11 +68,11 @@ public class LocationInfoUploadMsg extends PackageData {
 		this.elevation = elevation;
 	}
 
-	public float getSpeed() {
+	public int getSpeed() {
 		return speed;
 	}
 
-	public void setSpeed(float speed) {
+	public void setSpeed(int speed) {
 		this.speed = speed;
 	}
 

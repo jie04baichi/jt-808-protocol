@@ -8,6 +8,7 @@ import cn.hylexus.jt808.common.TPMSConsts;
 import cn.hylexus.jt808.server.SessionManager;
 import cn.hylexus.jt808.service.TerminalMsgProcessService;
 import cn.hylexus.jt808.service.codec.MsgDecoder;
+import cn.hylexus.jt808.util.JT808ProtocolUtils;
 import cn.hylexus.jt808.vo.PackageData;
 import cn.hylexus.jt808.vo.PackageData.MsgHeader;
 import cn.hylexus.jt808.vo.Session;
@@ -35,7 +36,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 	}
 
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException { // (2)
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception { // (2)
 		try {
 			ByteBuf buf = (ByteBuf) msg;
 			if (buf.readableBytes() <= 0) {
@@ -45,7 +46,9 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 
 			byte[] bs = new byte[buf.readableBytes()];
 			buf.readBytes(bs);
-
+			//转义还原
+			//JT808ProtocolUtils utils = new JT808ProtocolUtils();
+			//bs = utils.doEscape4Receive(bs, 0, bs.length);
 			// 字节数据转换为针对于808消息结构的实体类
 			PackageData pkg = this.decoder.bytes2PackageData(bs);
 			// 引用channel,以便回送数据给硬件

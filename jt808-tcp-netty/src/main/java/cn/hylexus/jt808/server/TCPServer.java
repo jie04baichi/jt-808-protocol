@@ -110,7 +110,7 @@ public class TCPServer {
 	}
 
 	public static void main(String[] args) throws Exception {
-		TCPServer server = new TCPServer(20048);
+		TCPServer server = new TCPServer(9001);
 		server.startServer();
 
 		// Thread.sleep(3000);

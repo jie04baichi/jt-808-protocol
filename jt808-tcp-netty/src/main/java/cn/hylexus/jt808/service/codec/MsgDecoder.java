@@ -1,6 +1,12 @@
 package cn.hylexus.jt808.service.codec;
 
 import cn.hylexus.jt808.vo.req.LocationInfoUploadMsg;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -208,13 +214,13 @@ public class MsgDecoder {
 		// 2. byte[4-7] 状态(DWORD(32))
 		ret.setStatusField(this.parseIntFromBytes(data, 4, 4));
 		// 3. byte[8-11] 纬度(DWORD(32)) 以度为单位的纬度值乘以10^6，精确到百万分之一度
-		ret.setLatitude(this.parseFloatFromBytes(data, 8, 4));
+		ret.setLatitude((int)this.parseFloatFromBytes(data, 8, 4));
 		// 4. byte[12-15] 经度(DWORD(32)) 以度为单位的经度值乘以10^6，精确到百万分之一度
-		ret.setLongitude(this.parseFloatFromBytes(data, 12, 4));
+		ret.setLongitude((int)this.parseFloatFromBytes(data, 12, 4));
 		// 5. byte[16-17] 高程(WORD(16)) 海拔高度，单位为米（ m）
 		ret.setElevation(this.parseIntFromBytes(data, 16, 2));
 		// byte[18-19] 速度(WORD) 1/10km/h
-		ret.setSpeed(this.parseFloatFromBytes(data, 18, 2));
+		ret.setSpeed(this.parseIntFromBytes(data, 18, 2));
 		// byte[20-21] 方向(WORD) 0-359，正北为 0，顺时针
 		ret.setDirection(this.parseIntFromBytes(data, 20, 2));
 		// byte[22-x] 时间(BCD[6]) YY-MM-DD-hh-mm-ss
@@ -224,6 +230,18 @@ public class MsgDecoder {
 		byte[] tmp = new byte[6];
 		System.arraycopy(data, 22, tmp, 0, 6);
 		String time = this.parseBcdStringFromBytes(data, 22, 6);
+		//目前收到的时间串中没有2018.只有20,这样写还可以支撑82年
+		time = "20"+time;
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date datetime = null;
+		try {
+			datetime = format.parse(time);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ret.setTime(datetime);
+		
 		return ret;
 	}
 
