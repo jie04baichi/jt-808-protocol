@@ -8,7 +8,6 @@ import cn.hylexus.jt808.common.TPMSConsts;
 import cn.hylexus.jt808.server.SessionManager;
 import cn.hylexus.jt808.service.TerminalMsgProcessService;
 import cn.hylexus.jt808.service.codec.MsgDecoder;
-import cn.hylexus.jt808.util.JT808ProtocolUtils;
 import cn.hylexus.jt808.vo.PackageData;
 import cn.hylexus.jt808.vo.PackageData.MsgHeader;
 import cn.hylexus.jt808.vo.Session;

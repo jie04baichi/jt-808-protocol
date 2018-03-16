@@ -2,7 +2,6 @@ package cn.hylexus.jt808.service.codec;
 
 import cn.hylexus.jt808.vo.req.LocationInfoUploadMsg;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -52,8 +51,6 @@ public class MsgDecoder {
 		ret.setMsgBodyBytes(tmp);
 
 		// 3. 去掉分隔符之后，最后一位就是校验码
-		// int checkSumInPkg =
-		// this.bitOperator.oneByteToInteger(data[data.length - 1]);
 		int checkSumInPkg = data[data.length - 1];
 		int calculatedCheckSum = this.bitOperator.getCheckSum4JT808(data, 0, data.length - 1);
 		ret.setCheckSum(checkSumInPkg);
@@ -67,14 +64,9 @@ public class MsgDecoder {
 		MsgHeader msgHeader = new MsgHeader();
 
 		// 1. 消息ID word(16)
-		// byte[] tmp = new byte[2];
-		// System.arraycopy(data, 0, tmp, 0, 2);
-		// msgHeader.setMsgId(this.bitOperator.twoBytesToInteger(tmp));
 		msgHeader.setMsgId(this.parseIntFromBytes(data, 0, 2));
 
 		// 2. 消息体属性 word(16)=================>
-		// System.arraycopy(data, 2, tmp, 0, 2);
-		// int msgBodyProps = this.bitOperator.twoBytesToInteger(tmp);
 		int msgBodyProps = this.parseIntFromBytes(data, 2, 2);
 		msgHeader.setMsgBodyPropsField(msgBodyProps);
 		// [ 0-9 ] 0000,0011,1111,1111(3FF)(消息体长度)
@@ -88,15 +80,9 @@ public class MsgDecoder {
 		// 消息体属性 word(16)<=================
 
 		// 3. 终端手机号 bcd[6]
-		// tmp = new byte[6];
-		// System.arraycopy(data, 4, tmp, 0, 6);
-		// msgHeader.setTerminalPhone(this.bcd8421Operater.bcd2String(tmp));
 		msgHeader.setTerminalPhone(this.parseBcdStringFromBytes(data, 4, 6));
 
 		// 4. 消息流水号 word(16) 按发送顺序从 0 开始循环累加
-		// tmp = new byte[2];
-		// System.arraycopy(data, 10, tmp, 0, 2);
-		// msgHeader.setFlowId(this.bitOperator.twoBytesToInteger(tmp));
 		msgHeader.setFlowId(this.parseIntFromBytes(data, 10, 2));
 
 		// 5. 消息包封装项
@@ -105,68 +91,12 @@ public class MsgDecoder {
 			// 消息包封装项字段
 			msgHeader.setPackageInfoField(this.parseIntFromBytes(data, 12, 4));
 			// byte[0-1] 消息包总数(word(16))
-			// tmp = new byte[2];
-			// System.arraycopy(data, 12, tmp, 0, 2);
-			// msgHeader.setTotalSubPackage(this.bitOperator.twoBytesToInteger(tmp));
 			msgHeader.setTotalSubPackage(this.parseIntFromBytes(data, 12, 2));
 
 			// byte[2-3] 包序号(word(16)) 从 1 开始
-			// tmp = new byte[2];
-			// System.arraycopy(data, 14, tmp, 0, 2);
-			// msgHeader.setSubPackageSeq(this.bitOperator.twoBytesToInteger(tmp));
 			msgHeader.setSubPackageSeq(this.parseIntFromBytes(data, 12, 2));
 		}
 		return msgHeader;
-	}
-
-	protected String parseStringFromBytes(byte[] data, int startIndex, int lenth) {
-		return this.parseStringFromBytes(data, startIndex, lenth, null);
-	}
-
-	private String parseStringFromBytes(byte[] data, int startIndex, int lenth, String defaultVal) {
-		try {
-			byte[] tmp = new byte[lenth];
-			System.arraycopy(data, startIndex, tmp, 0, lenth);
-			return new String(tmp, TPMSConsts.string_charset);
-		} catch (Exception e) {
-			log.error("解析字符串出错:{}", e.getMessage());
-			e.printStackTrace();
-			return defaultVal;
-		}
-	}
-
-	private String parseBcdStringFromBytes(byte[] data, int startIndex, int lenth) {
-		return this.parseBcdStringFromBytes(data, startIndex, lenth, null);
-	}
-
-	private String parseBcdStringFromBytes(byte[] data, int startIndex, int lenth, String defaultVal) {
-		try {
-			byte[] tmp = new byte[lenth];
-			System.arraycopy(data, startIndex, tmp, 0, lenth);
-			return this.bcd8421Operater.bcd2String(tmp);
-		} catch (Exception e) {
-			log.error("解析BCD(8421码)出错:{}", e.getMessage());
-			e.printStackTrace();
-			return defaultVal;
-		}
-	}
-
-	private int parseIntFromBytes(byte[] data, int startIndex, int length) {
-		return this.parseIntFromBytes(data, startIndex, length, 0);
-	}
-
-	private int parseIntFromBytes(byte[] data, int startIndex, int length, int defaultVal) {
-		try {
-			// 字节数大于4,从起始索引开始向后处理4个字节,其余超出部分丢弃
-			final int len = length > 4 ? 4 : length;
-			byte[] tmp = new byte[len];
-			System.arraycopy(data, startIndex, tmp, 0, len);
-			return bitOperator.byteToInteger(tmp);
-		} catch (Exception e) {
-			log.error("解析整数出错:{}", e.getMessage());
-			e.printStackTrace();
-			return defaultVal;
-		}
 	}
 
 	public TerminalRegisterMsg toTerminalRegisterMsg(PackageData packageData) {
@@ -185,7 +115,6 @@ public class MsgDecoder {
 		body.setCityId(this.parseIntFromBytes(data, 2, 2));
 
 		// 3. byte[4-8] 制造商ID(BYTE[5]) 5 个字节，终端制造商编码
-		// byte[] tmp = new byte[5];
 		body.setManufacturerId(this.parseStringFromBytes(data, 4, 5));
 
 		// 4. byte[9-16] 终端型号(BYTE[8]) 八个字节， 此终端型号 由制造商自行定义 位数不足八位的，补空格。
@@ -214,9 +143,9 @@ public class MsgDecoder {
 		// 2. byte[4-7] 状态(DWORD(32))
 		ret.setStatusField(this.parseIntFromBytes(data, 4, 4));
 		// 3. byte[8-11] 纬度(DWORD(32)) 以度为单位的纬度值乘以10^6，精确到百万分之一度
-		ret.setLatitude((int)this.parseFloatFromBytes(data, 8, 4));
+		ret.setLatitude(this.parseIntFromBytes(data, 8, 4));
 		// 4. byte[12-15] 经度(DWORD(32)) 以度为单位的经度值乘以10^6，精确到百万分之一度
-		ret.setLongitude((int)this.parseFloatFromBytes(data, 12, 4));
+		ret.setLongitude(this.parseIntFromBytes(data, 12, 4));
 		// 5. byte[16-17] 高程(WORD(16)) 海拔高度，单位为米（ m）
 		ret.setElevation(this.parseIntFromBytes(data, 16, 2));
 		// byte[18-19] 速度(WORD) 1/10km/h
@@ -225,11 +154,18 @@ public class MsgDecoder {
 		ret.setDirection(this.parseIntFromBytes(data, 20, 2));
 		// byte[22-x] 时间(BCD[6]) YY-MM-DD-hh-mm-ss
 		// GMT+8 时间，本标准中之后涉及的时间均采用此时区
-		// ret.setTime(this.par);
-
-		byte[] tmp = new byte[6];
-		System.arraycopy(data, 22, tmp, 0, 6);
-		String time = this.parseBcdStringFromBytes(data, 22, 6);
+		ret.setTime(this.parseDateFromBytes(data, 22, 6));
+		
+		return ret;
+	}
+	
+	private Date parseDateFromBytes(byte[] data, int startIndex, int length) {
+		return this.parseDateFromBytes(data, startIndex, length, new Date());
+	}
+	private Date parseDateFromBytes(byte[] data, int startIndex, int length,Date defaultVal) {
+		//byte[] tmp = new byte[6];
+		//System.arraycopy(data, startIndex, tmp, 0, length);
+		String time = this.parseBcdStringFromBytes(data, startIndex, length);
 		//目前收到的时间串中没有2018.只有20,这样写还可以支撑82年
 		time = "20"+time;
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -237,27 +173,58 @@ public class MsgDecoder {
 		try {
 			datetime = format.parse(time);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			datetime = defaultVal;
 		}
-		ret.setTime(datetime);
+		return datetime;
 		
-		return ret;
+	}
+	
+	private int parseIntFromBytes(byte[] data, int startIndex, int length) {
+		return this.parseIntFromBytes(data, startIndex, length, 0);
 	}
 
-	private float parseFloatFromBytes(byte[] data, int startIndex, int length) {
-		return this.parseFloatFromBytes(data, startIndex, length, 0f);
-	}
-
-	private float parseFloatFromBytes(byte[] data, int startIndex, int length, float defaultVal) {
+	private int parseIntFromBytes(byte[] data, int startIndex, int length, int defaultVal) {
 		try {
 			// 字节数大于4,从起始索引开始向后处理4个字节,其余超出部分丢弃
 			final int len = length > 4 ? 4 : length;
 			byte[] tmp = new byte[len];
 			System.arraycopy(data, startIndex, tmp, 0, len);
-			return bitOperator.byte2Float(tmp);
+			return bitOperator.byteToInteger(tmp);
 		} catch (Exception e) {
-			log.error("解析浮点数出错:{}", e.getMessage());
+			log.error("解析整数出错:{}", e.getMessage());
+			e.printStackTrace();
+			return defaultVal;
+		}
+	}
+	
+	protected String parseStringFromBytes(byte[] data, int startIndex, int lenth) {
+		return this.parseStringFromBytes(data, startIndex, lenth, "");
+	}
+
+	private String parseStringFromBytes(byte[] data, int startIndex, int lenth, String defaultVal) {
+		try {
+			byte[] tmp = new byte[lenth];
+			System.arraycopy(data, startIndex, tmp, 0, lenth);
+			return new String(tmp, TPMSConsts.string_charset);
+		} catch (Exception e) {
+			log.error("解析字符串出错:{}", e.getMessage());
+			e.printStackTrace();
+			return defaultVal;
+		}
+	}
+	
+	private String parseBcdStringFromBytes(byte[] data, int startIndex, int lenth) {
+		return this.parseBcdStringFromBytes(data, startIndex, lenth, "");
+	}
+
+	private String parseBcdStringFromBytes(byte[] data, int startIndex, int lenth, String defaultVal) {
+		try {
+			byte[] tmp = new byte[lenth];
+			System.arraycopy(data, startIndex, tmp, 0, lenth);
+			return this.bcd8421Operater.bcd2String(tmp);
+		} catch (Exception e) {
+			log.error("解析BCD(8421码)出错:{}", e.getMessage());
 			e.printStackTrace();
 			return defaultVal;
 		}

@@ -329,22 +329,6 @@ public class BitOperator {
 		return result;
 	}
 
-	public float byte2Float(byte[] bs) {
-		float num = (((bs[0] & 0xFF) << 24) + ((bs[1] & 0xFF) << 16) + ((bs[2] & 0xFF) << 8) + (bs[3] & 0xFF));
-		return num;
-	}
-
-	public float byteBE2Float(byte[] bytes) {
-		int l;
-		l = bytes[0];
-		l &= 0xff;
-		l |= ((long) bytes[1] << 8);
-		l &= 0xffff;
-		l |= ((long) bytes[2] << 16);
-		l &= 0xffffff;
-		l |= ((long) bytes[3] << 24);
-		return Float.intBitsToFloat(l);
-	}
 
 	public int getCheckSum4JT808(byte[] bs, int start, int end) {
 		if (start < 0 || end > bs.length)
