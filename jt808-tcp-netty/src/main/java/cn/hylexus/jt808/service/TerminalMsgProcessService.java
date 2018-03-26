@@ -34,10 +34,10 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
         Session session = sessionManager.findBySessionId(sessionId);
         if (session == null) {
             session = Session.buildSession(msg.getChannel(), msg.getMsgHeader().getTerminalPhone());
+            session.setAuthenticated(true);
+            session.setTerminalPhone(msg.getMsgHeader().getTerminalPhone());
+            sessionManager.put(session.getId(), session);
         }
-        session.setAuthenticated(true);
-        session.setTerminalPhone(msg.getMsgHeader().getTerminalPhone());
-        sessionManager.put(session.getId(), session);
 
         TerminalRegisterMsgRespBody respMsgBody = new TerminalRegisterMsgRespBody();
         respMsgBody.setReplyCode(TerminalRegisterMsgRespBody.success);
@@ -59,13 +59,19 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
         Session session = sessionManager.findBySessionId(sessionId);
         if (session == null) {
             session = Session.buildSession(msg.getChannel(), msg.getMsgHeader().getTerminalPhone());
+            session.setAuthenticated(true);
+            session.setTerminalPhone(msg.getMsgHeader().getTerminalPhone());
+            sessionManager.put(session.getId(), session);
         }
-        session.setAuthenticated(true);
-        session.setTerminalPhone(msg.getMsgHeader().getTerminalPhone());
-        sessionManager.put(session.getId(), session);
-
         ServerCommonRespMsgBody respMsgBody = new ServerCommonRespMsgBody();
-        respMsgBody.setReplyCode(ServerCommonRespMsgBody.success);
+
+        // TODO 判断鉴权码是否一致
+        if (msg.getAuthCode() !=null && msg.getAuthCode().equals("123")) {
+            respMsgBody.setReplyCode(ServerCommonRespMsgBody.success);
+		}
+        else {
+			respMsgBody.setReplyCode(ServerCommonRespMsgBody.failure);
+		}
         respMsgBody.setReplyFlowId(msg.getMsgHeader().getFlowId());
         respMsgBody.setReplyId(msg.getMsgHeader().getMsgId());
         int flowId = super.getFlowId(msg.getChannel());

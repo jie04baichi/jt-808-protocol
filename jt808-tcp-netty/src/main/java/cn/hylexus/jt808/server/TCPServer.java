@@ -49,7 +49,8 @@ public class TCPServer {
 					public void initChannel(SocketChannel ch) throws Exception {
 						ch.pipeline().addLast("idleStateHandler",
 								new IdleStateHandler(TPMSConsts.tcp_client_idle_minutes, 0, 0, TimeUnit.MINUTES));
-						ch.pipeline().addLast(new Decoder4LoggingOnly());
+						//关闭日志
+						//ch.pipeline().addLast(new Decoder4LoggingOnly());
 						// 1024表示单条消息的最大长度，解码器在查找分隔符的时候，达到该长度还没找到的话会抛异常
 						ch.pipeline().addLast(
 								new DelimiterBasedFrameDecoder(1024, Unpooled.copiedBuffer(new byte[] { 0x7e }),

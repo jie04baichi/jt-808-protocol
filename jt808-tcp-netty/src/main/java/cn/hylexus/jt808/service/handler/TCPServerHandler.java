@@ -9,6 +9,7 @@ import cn.hylexus.jt808.common.Session;
 import cn.hylexus.jt808.common.TPMSConsts;
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.server.SessionManager;
+import cn.hylexus.jt808.service.BaiduUploadService;
 import cn.hylexus.jt808.service.TerminalMsgProcessService;
 import cn.hylexus.jt808.service.codec.MsgDecoder;
 import cn.hylexus.jt808.vo.req.TerminalAuthenticationMsg;
@@ -53,7 +54,10 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 			// 引用channel,以便回送数据给硬件
 			pkg.setChannel(ctx.channel());
 			this.processPackageData(pkg);
-		} finally {
+		}catch(Exception e){
+			//异常不做处理
+		} 
+		finally {
 			release(msg);
 		}
 	}
@@ -83,7 +87,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 
 		// 5. 终端鉴权 ==> 平台通用应答
 		else if (TPMSConsts.msg_id_terminal_authentication == header.getMsgId()) {
-			logger.info(">>>>>[终端鉴权],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+			logger.info(">>>>>[终端鉴权],megid={},phone={},flowid={}", header.getMsgId(),header.getTerminalPhone(), header.getFlowId());
 			try {
 				TerminalAuthenticationMsg authenticationMsg = new TerminalAuthenticationMsg(packageData);
 				this.msgProcessService.processAuthMsg(authenticationMsg);
@@ -96,10 +100,12 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 		}
 		// 6. 终端注册 ==> 终端注册应答
 		else if (TPMSConsts.msg_id_terminal_register == header.getMsgId()) {
-			logger.info(">>>>>[终端注册],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+			logger.info(">>>>>[终端注册],megid={},phone={},flowid={}", header.getMsgId(),header.getTerminalPhone(), header.getFlowId());
 			try {
 				TerminalRegisterMsg msg = this.decoder.toTerminalRegisterMsg(packageData);
 				this.msgProcessService.processRegisterMsg(msg);
+				// TODO 保存终端注册信息
+				
 				logger.info("<<<<<[终端注册],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
 			} catch (Exception e) {
 				logger.error("<<<<<[终端注册]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
@@ -109,9 +115,11 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 		}
 		// 7. 终端注销(终端注销数据消息体为空) ==> 平台通用应答
 		else if (TPMSConsts.msg_id_terminal_log_out == header.getMsgId()) {
-			logger.info(">>>>>[终端注销],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+			logger.info(">>>>>[终端注销],megid={},phone={},flowid={}", header.getMsgId(),header.getTerminalPhone(), header.getFlowId());
 			try {
 				this.msgProcessService.processTerminalLogoutMsg(packageData);
+				// TODO 删除终端注册信息
+				
 				logger.info("<<<<<[终端注销],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
 			} catch (Exception e) {
 				logger.error("<<<<<[终端注销]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
@@ -121,11 +129,13 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 		}
 		// 3. 位置信息汇报 ==> 平台通用应答
 		else if (TPMSConsts.msg_id_terminal_location_info_upload == header.getMsgId()) {
-			logger.info(">>>>>[位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+			logger.info(">>>>>[位置信息],megid={},phone={},flowid={}",header.getMsgId(), header.getTerminalPhone(), header.getFlowId());
 			try {
 				LocationInfoUploadMsg locationInfoUploadMsg = this.decoder.toLocationInfoUploadMsg(packageData);
-				System.out.println(locationInfoUploadMsg);
+				//System.out.println(locationInfoUploadMsg);
 				this.msgProcessService.processLocationInfoUploadMsg(locationInfoUploadMsg);
+				//将终端位置信息上传到百度数据库中
+				BaiduUploadService.addpoint(header, locationInfoUploadMsg);
 				logger.info("<<<<<[位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
 			} catch (Exception e) {
 				logger.error("<<<<<[位置信息]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
@@ -135,8 +145,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 		}
 		// 其他情况
 		else {
-			logger.error(">>>>>>[未知消息类型],phone={},msgId={},package={}", header.getTerminalPhone(), header.getMsgId(),
-					packageData);
+			//logger.error(">>>>>>[未知消息类型],phone={},msgId={},package={}", header.getTerminalPhone(), header.getMsgId(),packageData);
 		}
 	}
 

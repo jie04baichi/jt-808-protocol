@@ -87,7 +87,21 @@
 		</dependency>
 		<!-- netty ===== -->
 
-
+		<dependency>
+			<groupId>com.sohu.cloudatlas</groupId>
+			<artifactId>cloudatlas-commons</artifactId>
+			<version>3.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>mongo-java-driver</artifactId>
+					<groupId>org.mongodb</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -14,6 +14,7 @@ import cn.hylexus.jt808.common.TPMSConsts;
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.util.BCD8421Operater;
 import cn.hylexus.jt808.util.BitOperator;
+import cn.hylexus.jt808.util.JT808ProtocolUtils;
 import cn.hylexus.jt808.vo.req.TerminalRegisterMsg;
 import cn.hylexus.jt808.vo.req.TerminalRegisterMsg.TerminalRegInfo;
 
@@ -23,17 +24,21 @@ public class MsgDecoder {
 
 	private BitOperator bitOperator;
 	private BCD8421Operater bcd8421Operater;
+	private JT808ProtocolUtils jt800util;
 
 	public MsgDecoder() {
 		this.bitOperator = new BitOperator();
 		this.bcd8421Operater = new BCD8421Operater();
+		this.jt800util = new JT808ProtocolUtils();
 	}
 
-	public PackageData bytes2PackageData(byte[] data) {
+	public PackageData bytes2PackageData(byte[] data) throws Exception {
 		PackageData ret = new PackageData();
 
 		// 0. 终端套接字地址信息
 		// ret.setChannel(msg.getChannel());
+		//接收消息,转义处理
+		data = this.jt800util.doEscape4Receive(data, 0, data.length);
 
 		// 1. 16byte 或 12byte 消息头
 		MsgHeader msgHeader = this.parseMsgHeaderFromBytes(data);
@@ -49,13 +54,15 @@ public class MsgDecoder {
 		byte[] tmp = new byte[msgHeader.getMsgBodyLength()];
 		System.arraycopy(data, msgBodyByteStartIndex, tmp, 0, tmp.length);
 		ret.setMsgBodyBytes(tmp);
-
+		
 		// 3. 去掉分隔符之后，最后一位就是校验码
 		int checkSumInPkg = data[data.length - 1];
 		int calculatedCheckSum = this.bitOperator.getCheckSum4JT808(data, 0, data.length - 1);
 		ret.setCheckSum(checkSumInPkg);
 		if (checkSumInPkg != calculatedCheckSum) {
+			//校验码不一样,丢掉该报文信息
 			log.warn("检验码不一致,msgid:{},pkg:{},calculated:{}", msgHeader.getMsgId(), checkSumInPkg, calculatedCheckSum);
+			throw new Exception();
 		}
 		return ret;
 	}
