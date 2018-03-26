@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 //java版计算signature签名
 public class BaiduSnCal {
-        public static String work(String url_prax,Map paramsMap) throws UnsupportedEncodingException,
+        public static String work(String url_prefix,Map paramsMap) throws UnsupportedEncodingException,
                         NoSuchAlgorithmException {
                 BaiduSnCal snCal = new BaiduSnCal();
 
@@ -33,7 +33,7 @@ public class BaiduSnCal {
                 String paramsStr = snCal.toQueryString(paramsMap);
                 
                 // 对paramsStr前面拼接上/geocoder/v2/?，后面直接拼接yoursk得到/geocoder/v2/?address=%E7%99%BE%E5%BA%A6%E5%A4%A7%E5%8E%A6&output=json&ak=yourakyoursk
-                String wholeStr = new String(url_prax + paramsStr + "9stABdl7H4wvPnbtO9RCdFC7h1DqjFex");
+                String wholeStr = new String(url_prefix + paramsStr + "9stABdl7H4wvPnbtO9RCdFC7h1DqjFex");
                 // 对上面wholeStr再作utf8编码
                 String tempStr = URLEncoder.encode(wholeStr, "UTF-8");
 
