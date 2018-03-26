@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.util.HttpUtils;
-import cn.hylexus.jt808.util.SnCal;
+import cn.hylexus.jt808.util.BaiduSnCal;
 import cn.hylexus.jt808.vo.req.LocationInfoUploadMsg;
 
 public class BaiduUploadService {
@@ -29,7 +29,7 @@ public class BaiduUploadService {
 		paramMap.put("speed", String.valueOf(locationInfoUploadMsg.getSpeed()/10.00));
 		paramMap.put("direction", String.valueOf(locationInfoUploadMsg.getDirection()));
 		paramMap.put("height", String.valueOf(locationInfoUploadMsg.getElevation()));
-		String sn = SnCal.work("/api/v3/track/addpoint", paramMap);
+		String sn = BaiduSnCal.work("/api/v3/track/addpoint", paramMap);
 		paramMap.put("sn", sn);
 		String baidu_api_url = "http://yingyan.baidu.com/api/v3/track/addpoint";
 		String result = HttpUtils.httpPost(baidu_api_url, paramMap);

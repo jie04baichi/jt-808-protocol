@@ -9,10 +9,10 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 //java版计算signature签名
-public class SnCal {
+public class BaiduSnCal {
         public static String work(String url_prax,Map paramsMap) throws UnsupportedEncodingException,
                         NoSuchAlgorithmException {
-                SnCal snCal = new SnCal();
+                BaiduSnCal snCal = new BaiduSnCal();
 
                 // 计算sn跟参数对出现顺序有关，get请求请使用LinkedHashMap保存<key,value>，该方法根据key的插入顺序排序；
                 //post请使用TreeMap保存<key,value>，该方法会自动将key按照字母a-z顺序排序。
