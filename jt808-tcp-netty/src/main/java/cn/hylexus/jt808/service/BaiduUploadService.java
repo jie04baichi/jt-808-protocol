@@ -8,6 +8,8 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONObject;
+
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.util.HttpUtils;
 import cn.hylexus.jt808.util.BaiduSnCal;
@@ -21,7 +23,7 @@ public class BaiduUploadService {
 		Map<String,Object> paramMap = new TreeMap<String, Object>();
 		paramMap.put("ak", "aElWRH5ayr3b6fGBlyjZH0z9o857Y8aI");
 		paramMap.put("service_id", "162014");
-		paramMap.put("entity_name", "彭杰gps设备");
+		paramMap.put("entity_name", header.getTerminalPhone());
 		paramMap.put("latitude", String.valueOf(locationInfoUploadMsg.getLatitude()/1000000.00));
 		paramMap.put("longitude", String.valueOf(locationInfoUploadMsg.getLongitude()/1000000.00));
 		paramMap.put("loc_time", String.valueOf(locationInfoUploadMsg.getTime().getTime()/1000));
@@ -32,7 +34,35 @@ public class BaiduUploadService {
 		String sn = BaiduSnCal.work("/api/v3/track/addpoint", paramMap);
 		paramMap.put("sn", sn);
 		String baidu_api_url = "http://yingyan.baidu.com/api/v3/track/addpoint";
-		String result = HttpUtils.httpPost(baidu_api_url, paramMap);
+		String result = invoke_baidu_http(baidu_api_url, paramMap,HTTP_TYPE.POST);
 		log.info("BaiduUploadService:addpoint = {}", result);
+	}
+	/*
+	 * 调用百度http请求,当百度内部出现异常,重试三次
+	 */
+	private static String invoke_baidu_http(String url, Map params, HTTP_TYPE type){
+		
+		String result = null;
+		boolean work = true;
+		int count = 3;
+		while (work&&count>0) {
+			if (type == HTTP_TYPE.GET) {
+				result = HttpUtils.httpGet(url, params);
+			}else {
+				result = HttpUtils.httpPost(url, params);
+			}
+			JSONObject resultobject = JSONObject.parseObject(result);
+			//百度内部出现异常,可能是超时引起
+			if (resultobject.getInteger("status") == 1) {
+				count--;
+				continue;
+			}
+			work = false;
+		}
+		return result;
+	}
+	private enum HTTP_TYPE{
+		GET,
+		POST
 	}
 }
