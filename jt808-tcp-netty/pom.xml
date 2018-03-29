@@ -86,25 +86,39 @@
 			<version>4.1.6.Final</version>
 		</dependency>
 		<!-- netty ===== -->
-
 		<dependency>
-			<groupId>com.sohu.cloudatlas</groupId>
-			<artifactId>cloudatlas-commons</artifactId>
-			<version>3.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-				<exclusion>
-					<artifactId>mongo-java-driver</artifactId>
-					<groupId>org.mongodb</groupId>
-				</exclusion>
-			</exclusions>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.29</version>
+		</dependency>
+		<!--mybatis依赖 -->  
+        <dependency>  
+            <groupId>org.mybatis</groupId>  
+            <artifactId>mybatis</artifactId>  
+            <version>3.2.1</version>  
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
+		<dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpcore</artifactId>
+		    <version>4.4.9</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+			<version>1.16.20</version>
 		</dependency>
 	</dependencies>
-
 	<build>
+	    <resources>  
+        <resource>  
+            <directory>src/main/resources</directory>  
+            <excludes>  
+            </excludes>  
+        </resource>  
+    	</resources>  
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

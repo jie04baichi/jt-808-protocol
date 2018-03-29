@@ -11,6 +11,7 @@ import cn.hylexus.jt808.common.Session;
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.server.SessionManager;
 import cn.hylexus.jt808.service.codec.MsgEncoder;
+import cn.hylexus.jt808.util.MD5Utils;
 import cn.hylexus.jt808.vo.req.TerminalAuthenticationMsg;
 import cn.hylexus.jt808.vo.req.TerminalRegisterMsg;
 import cn.hylexus.jt808.vo.resp.ServerCommonRespMsgBody;
@@ -42,8 +43,7 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
         TerminalRegisterMsgRespBody respMsgBody = new TerminalRegisterMsgRespBody();
         respMsgBody.setReplyCode(TerminalRegisterMsgRespBody.success);
         respMsgBody.setReplyFlowId(msg.getMsgHeader().getFlowId());
-        // TODO 鉴权码暂时写死
-        respMsgBody.setReplyToken("123");
+        respMsgBody.setReplyToken(msg.getAuth_token());
         int flowId = super.getFlowId(msg.getChannel());
         byte[] bs = this.msgEncoder.encode4TerminalRegisterResp(msg, respMsgBody, flowId);
 
@@ -51,7 +51,6 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
     }
 
     public void processAuthMsg(TerminalAuthenticationMsg msg) throws Exception {
-        // TODO 暂时每次鉴权都成功
 
         log.debug("终端鉴权:{}", JSON.toJSONString(msg, true));
 
@@ -64,9 +63,10 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
             sessionManager.put(session.getId(), session);
         }
         ServerCommonRespMsgBody respMsgBody = new ServerCommonRespMsgBody();
-
-        // TODO 判断鉴权码是否一致
-        if (msg.getAuthCode() !=null && msg.getAuthCode().equals("123")) {
+		String head = msg.getMsgHeader().getTerminalPhone();
+		String auth_token = MD5Utils.MD5Encode(head, MD5Utils.salt);
+		
+        if (msg.getAuthCode() !=null && msg.getAuthCode().equals(auth_token)) {
             respMsgBody.setReplyCode(ServerCommonRespMsgBody.success);
 		}
         else {

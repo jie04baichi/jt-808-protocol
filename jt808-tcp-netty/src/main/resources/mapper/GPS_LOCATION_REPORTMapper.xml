@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.hylexus.jt808.database.dao.GPS_LOCATION_REPORT_DAO">
+
+	<resultMap id="BaseResultMap" type="cn.hylexus.jt808.database.pojo.GPS_LOCATION_REPORT">
+		<id column="ID" property="ID" jdbcType="INTEGER" />
+		<result column="phone" property="phone" jdbcType="VARCHAR" />
+		<result column="alarm_field" property="alarm_field" jdbcType="INTEGER" />
+		<result column="status_field" property="status_field" jdbcType="INTEGER" />
+		<result column="latitude" property="latitude" jdbcType="INTEGER" />
+		<result column="longitude" property="longitude" jdbcType="INTEGER" />
+		<result column="elevation" property="elevation" jdbcType="INTEGER" />
+		<result column="speed" property="speed" jdbcType="INTEGER" />
+		<result column="direction" property="direction" jdbcType="INTEGER" />
+		<result column="loc_time" property="loc_time" jdbcType="TIMESTAMP" />
+		<result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Column_List">
+		ID, phone, alarm_field, status_field,latitude, longitude, elevation, speed, direction,loc_time,create_time
+	</sql>
+
+	<insert id="save" parameterType="cn.hylexus.jt808.database.pojo.GPS_LOCATION_REPORT"
+		useGeneratedKeys="true" keyProperty="ID">
+		insert into GPS_LOCATION_REPORT(ID, phone, alarm_field, status_field,latitude, longitude, elevation, speed, direction,loc_time,create_time)
+		values(
+			#{ID,jdbcType=INTEGER},
+			#{phone,jdbcType=VARCHAR},
+			#{alarm_field,jdbcType=INTEGER},
+			#{status_field,jdbcType=INTEGER},
+			#{latitude,jdbcType=INTEGER},
+			#{longitude,jdbcType=INTEGER},
+			#{elevation,jdbcType=INTEGER},
+			#{speed,jdbcType=INTEGER},
+			#{direction,jdbcType=INTEGER},
+			#{loc_time,jdbcType=TIMESTAMP},
+			#{create_time,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<select id="findByPhone" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Column_List" />
+		from GPS_LOCATION_REPORT
+		where phone = #{phone,jdbcType=VARCHAR}
+	</select>
+</mapper>

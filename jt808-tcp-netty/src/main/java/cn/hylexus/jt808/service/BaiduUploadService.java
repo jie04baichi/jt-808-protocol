@@ -44,7 +44,7 @@ public class BaiduUploadService {
 		
 		String result = null;
 		boolean work = true;
-		int count = 3;
+		int count = 1; //不进行重试
 		while (work&&count>0) {
 			if (type == HTTP_TYPE.GET) {
 				result = HttpUtils.httpGet(url, params);

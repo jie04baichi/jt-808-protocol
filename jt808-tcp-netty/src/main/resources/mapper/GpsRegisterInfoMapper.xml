@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.hylexus.jt808.database.dao.GpsRegisterInfoDao">
+
+	<resultMap id="BaseResultMap" type="cn.hylexus.jt808.database.pojo.GpsRegisterInfo">
+		<id column="ID" property="ID" jdbcType="INTEGER" />
+		<result column="phone" property="phone" jdbcType="VARCHAR" />
+		<result column="imsi" property="imsi" jdbcType="VARCHAR" />
+		<result column="imsi_type" property="imsi_type" jdbcType="VARCHAR" />
+		<result column="make_brand" property="make_brand" jdbcType="VARCHAR" />
+		<result column="province_id" property="province_id" jdbcType="INTEGER" />
+		<result column="city_id" property="city_id" jdbcType="INTEGER" />
+		<result column="outer_color" property="outer_color" jdbcType="INTEGER" />
+		<result column="license" property="license" jdbcType="VARCHAR" />
+		<result column="register_status" property="register_status" jdbcType="INTEGER" />
+		<result column="auth_token" property="auth_token" jdbcType="VARCHAR" />
+		<result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Column_List">
+		id, phone, imsi, imsi_type, make_brand,province_id, city_id, outer_color, license, register_status,auth_token,create_time
+	</sql>
+
+	<insert id="save" parameterType="cn.hylexus.jt808.database.pojo.GpsRegisterInfo"
+		useGeneratedKeys="true" keyProperty="ID">
+		insert into GPS_REGISTER_INFO(ID, phone, imsi, imsi_type, make_brand, province_id, city_id,outer_color,license,register_status,auth_token,create_time)
+		values(
+			#{ID,jdbcType=INTEGER},
+			#{phone,jdbcType=VARCHAR},
+			#{imsi,jdbcType=VARCHAR},
+			#{imsi_type,jdbcType=VARCHAR},
+			#{make_brand,jdbcType=VARCHAR},
+			#{province_id,jdbcType=INTEGER},
+			#{city_id,jdbcType=INTEGER},
+			#{outer_color,jdbcType=INTEGER},
+			#{license,jdbcType=VARCHAR},
+			#{register_status,jdbcType=INTEGER},
+			#{auth_token,jdbcType=VARCHAR},
+			#{create_time,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<select id="findByImsi" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Column_List" />
+		from GPS_REGISTER_INFO
+		where imsi = #{imsi,jdbcType=VARCHAR}
+	</select>
+	<select id="findByPhone" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Column_List" />
+		from GPS_REGISTER_INFO
+		where phone = #{phone,jdbcType=VARCHAR}
+	</select>
+		<delete id="deleteByphone" parameterType="java.lang.String">
+		delete from GPS_REGISTER_INFO where phone = #{phone,jdbcType=VARCHAR}
+	</delete>
+</mapper>

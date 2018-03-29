@@ -1,17 +1,28 @@
 package cn.hylexus.jt808.service.handler;
 
 import cn.hylexus.jt808.vo.req.LocationInfoUploadMsg;
+
+
+import java.util.Date;
+
+import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.hylexus.jt808.common.PackageData;
 import cn.hylexus.jt808.common.Session;
 import cn.hylexus.jt808.common.TPMSConsts;
+import cn.hylexus.jt808.database.DBTools;
+import cn.hylexus.jt808.database.dao.GPS_LOCATION_REPORT_DAO;
+import cn.hylexus.jt808.database.dao.GpsRegisterInfoDao;
+import cn.hylexus.jt808.database.pojo.GPS_LOCATION_REPORT;
+import cn.hylexus.jt808.database.pojo.GpsRegisterInfo;
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.server.SessionManager;
 import cn.hylexus.jt808.service.BaiduUploadService;
 import cn.hylexus.jt808.service.TerminalMsgProcessService;
 import cn.hylexus.jt808.service.codec.MsgDecoder;
+import cn.hylexus.jt808.util.MD5Utils;
 import cn.hylexus.jt808.vo.req.TerminalAuthenticationMsg;
 import cn.hylexus.jt808.vo.req.TerminalRegisterMsg;
 import io.netty.buffer.ByteBuf;
@@ -24,7 +35,7 @@ import io.netty.util.ReferenceCountUtil;
 public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-
+	
 	private final SessionManager sessionManager;
 	private final MsgDecoder decoder;
 	private TerminalMsgProcessService msgProcessService;
@@ -101,46 +112,89 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 		// 6. 终端注册 ==> 终端注册应答
 		else if (TPMSConsts.msg_id_terminal_register == header.getMsgId()) {
 			logger.info(">>>>>[终端注册],megid={},phone={},flowid={}", header.getMsgId(),header.getTerminalPhone(), header.getFlowId());
+			SqlSession sqlSession = DBTools.getSession();
+
 			try {
 				TerminalRegisterMsg msg = this.decoder.toTerminalRegisterMsg(packageData);
+				//生成鉴权码
+				String phone = header.getTerminalPhone();
+				String auth_token = MD5Utils.MD5Encode(phone, MD5Utils.salt);
+				msg.setAuth_token(auth_token);
 				this.msgProcessService.processRegisterMsg(msg);
-				// TODO 保存终端注册信息
-				
+				// 保存终端注册信息
+				GpsRegisterInfoDao registerInfoDao = sqlSession.getMapper(GpsRegisterInfoDao.class);
+				GpsRegisterInfo registerInfo = new GpsRegisterInfo();
+				registerInfo.setPhone(header.getTerminalPhone());
+				registerInfo.setImsi(msg.getTerminalRegInfo().getTerminalId());
+				registerInfo.setImsi_type(msg.getTerminalRegInfo().getTerminalType());
+				registerInfo.setLicense(msg.getTerminalRegInfo().getLicensePlate());
+				registerInfo.setMake_brand(msg.getTerminalRegInfo().getManufacturerId());
+				registerInfo.setProvince_id(msg.getTerminalRegInfo().getProvinceId());
+				registerInfo.setCity_id(msg.getTerminalRegInfo().getCityId());
+				registerInfo.setRegister_status(1);
+				registerInfo.setOuter_color(msg.getTerminalRegInfo().getLicensePlateColor());
+				registerInfo.setCreate_time(new Date());
+				registerInfo.setAuth_token(auth_token);
+				registerInfoDao.save(registerInfo);
+				sqlSession.commit();
 				logger.info("<<<<<[终端注册],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
 			} catch (Exception e) {
 				logger.error("<<<<<[终端注册]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
 						e.getMessage());
 				e.printStackTrace();
+				sqlSession.rollback();
 			}
 		}
 		// 7. 终端注销(终端注销数据消息体为空) ==> 平台通用应答
 		else if (TPMSConsts.msg_id_terminal_log_out == header.getMsgId()) {
 			logger.info(">>>>>[终端注销],megid={},phone={},flowid={}", header.getMsgId(),header.getTerminalPhone(), header.getFlowId());
+			SqlSession sqlSession = DBTools.getSession();
+
 			try {
 				this.msgProcessService.processTerminalLogoutMsg(packageData);
-				// TODO 删除终端注册信息
-				
+				// 删除终端注册信息
+				GpsRegisterInfoDao registerInfoDao = sqlSession.getMapper(GpsRegisterInfoDao.class);
+				registerInfoDao.deleteByphone(header.getTerminalPhone());
 				logger.info("<<<<<[终端注销],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
 			} catch (Exception e) {
 				logger.error("<<<<<[终端注销]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
 						e.getMessage());
 				e.printStackTrace();
+				sqlSession.rollback();
 			}
 		}
 		// 3. 位置信息汇报 ==> 平台通用应答
 		else if (TPMSConsts.msg_id_terminal_location_info_upload == header.getMsgId()) {
 			logger.info(">>>>>[位置信息],megid={},phone={},flowid={}",header.getMsgId(), header.getTerminalPhone(), header.getFlowId());
+
+			SqlSession session = DBTools.getSession();
+			
 			try {
 				LocationInfoUploadMsg locationInfoUploadMsg = this.decoder.toLocationInfoUploadMsg(packageData);
 				//System.out.println(locationInfoUploadMsg);
 				this.msgProcessService.processLocationInfoUploadMsg(locationInfoUploadMsg);
 				//将终端位置信息上传到百度数据库中
 				BaiduUploadService.addpoint(header, locationInfoUploadMsg);
+				//将数据入库
+				GPS_LOCATION_REPORT_DAO dao =  session.getMapper(GPS_LOCATION_REPORT_DAO.class);
+				GPS_LOCATION_REPORT location = new GPS_LOCATION_REPORT();
+				location.setAlarm_field(locationInfoUploadMsg.getWarningFlagField());
+				location.setStatus_field(locationInfoUploadMsg.getStatusField());
+				location.setLatitude(locationInfoUploadMsg.getLatitude());
+				location.setLongitude(locationInfoUploadMsg.getLongitude());
+				location.setSpeed(locationInfoUploadMsg.getSpeed());
+				location.setDirection(locationInfoUploadMsg.getDirection());
+				location.setPhone(header.getTerminalPhone());
+				location.setLoc_time(locationInfoUploadMsg.getTime());
+				location.setCreate_time(new Date());
+				dao.save(location);
+				session.commit();
 				logger.info("<<<<<[位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
 			} catch (Exception e) {
 				logger.error("<<<<<[位置信息]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
 						e.getMessage());
 				e.printStackTrace();
+				session.rollback();
 			}
 		}
 		// 其他情况

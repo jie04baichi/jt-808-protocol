@@ -13,7 +13,9 @@ import cn.hylexus.jt808.common.PackageData;
 public class TerminalRegisterMsg extends PackageData {
 
 	private TerminalRegInfo terminalRegInfo;
-
+	
+	private String auth_token;
+	
 	public TerminalRegisterMsg() {
 	}
 
@@ -31,6 +33,14 @@ public class TerminalRegisterMsg extends PackageData {
 
 	public void setTerminalRegInfo(TerminalRegInfo msgBody) {
 		this.terminalRegInfo = msgBody;
+	}
+
+	public String getAuth_token() {
+		return auth_token;
+	}
+
+	public void setAuth_token(String auth_token) {
+		this.auth_token = auth_token;
 	}
 
 	@Override
