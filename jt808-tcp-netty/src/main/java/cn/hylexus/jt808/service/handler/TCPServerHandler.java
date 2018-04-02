@@ -16,6 +16,7 @@ import cn.hylexus.jt808.database.DBTools;
 import cn.hylexus.jt808.database.dao.GPS_ALARM_STATUS_DAO;
 import cn.hylexus.jt808.database.dao.GPS_LOCATION_REPORT_DAO;
 import cn.hylexus.jt808.database.dao.GpsRegisterInfoDao;
+import cn.hylexus.jt808.database.pojo.AlarmCode;
 import cn.hylexus.jt808.database.pojo.GPS_ALARM_STATUS;
 import cn.hylexus.jt808.database.pojo.GPS_LOCATION_REPORT;
 import cn.hylexus.jt808.database.pojo.GpsRegisterInfo;
@@ -198,7 +199,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 					//1：终端主电源⽋压
 					GPS_ALARM_STATUS_DAO alarm_dao = session.getMapper(GPS_ALARM_STATUS_DAO.class);
 					GPS_ALARM_STATUS alarm_info = new GPS_ALARM_STATUS();
-					alarm_info.setAlarm_code("欠压报警");
+					alarm_info.setAlarm_code(AlarmCode.UNVOLTAGEALARM);
 					alarm_info.setAlarm_time(locationInfoUploadMsg.getTime());
 					alarm_info.setPhone(header.getTerminalPhone());
 					//alarm_info.setImsi(imsi);
