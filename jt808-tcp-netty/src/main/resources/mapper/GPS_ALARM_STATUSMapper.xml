@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.hylexus.jt808.database.dao.GPS_ALARM_STATUS_DAO">
+
+	<resultMap id="BaseResultMap" type="cn.hylexus.jt808.database.pojo.GPS_ALARM_STATUS">
+		<id column="ID" property="ID" jdbcType="INTEGER" />
+		<result column="phone" property="phone" jdbcType="VARCHAR" />
+		<result column="alarm_code" property="alarm_code" jdbcType="VARCHAR" />
+		<result column="latitude" property="latitude" jdbcType="INTEGER" />
+		<result column="longitude" property="longitude" jdbcType="INTEGER" />
+		<result column="poi" property="poi" jdbcType="VARCHAR" />
+		<result column="alarm_time" property="alarm_time" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Column_List">
+		ID, phone, alarm_code,latitude, longitude, poi, alarm_time
+	</sql>
+
+	<insert id="save" parameterType="cn.hylexus.jt808.database.pojo.GPS_ALARM_STATUS"
+		useGeneratedKeys="true" keyProperty="ID">
+		insert into GPS_ALARM_STATUS(ID, phone, alarm_code,latitude, longitude, poi, alarm_time)
+		values(
+			#{ID,jdbcType=INTEGER},
+			#{phone,jdbcType=VARCHAR},
+			#{alarm_code,jdbcType=VARCHAR},
+			#{latitude,jdbcType=INTEGER},
+			#{longitude,jdbcType=INTEGER},
+			#{poi,jdbcType=VARCHAR},
+			#{alarm_time,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<select id="findByPhone" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Column_List" />
+		from GPS_ALARM_STATUS
+		where phone = #{phone,jdbcType=VARCHAR}
+	</select>
+</mapper>

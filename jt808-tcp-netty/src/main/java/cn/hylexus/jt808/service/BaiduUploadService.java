@@ -2,6 +2,7 @@ package cn.hylexus.jt808.service;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -36,6 +37,28 @@ public class BaiduUploadService {
 		String baidu_api_url = "http://yingyan.baidu.com/api/v3/track/addpoint";
 		String result = invoke_baidu_http(baidu_api_url, paramMap,HTTP_TYPE.POST);
 		log.info("BaiduUploadService:addpoint = {}", result);
+	}
+	public static  String geocoder_location(double longitude,double latitude) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+		//http://api.map.baidu.com/geocoder/v2/?
+		//location=39.934%2C116.329&output=json&ak=aElWRH5ayr3b6fGBlyjZH0z9o857Y8aI&sn=1b8f3a698cd1002588beef23e73f2284
+		Map<String,Object> paramMap = new LinkedHashMap<String, Object>();
+		String location = latitude+","+longitude;
+		paramMap.put("location", location);
+		paramMap.put("output", "json");
+		paramMap.put("ak", "aElWRH5ayr3b6fGBlyjZH0z9o857Y8aI");
+
+		String sn = BaiduSnCal.work("/geocoder/v2/", paramMap);
+		paramMap.put("sn", sn);
+		String baidu_api_url = "http://api.map.baidu.com/geocoder/v2/";
+		String result = invoke_baidu_http(baidu_api_url, paramMap,HTTP_TYPE.GET);
+		log.info("BaiduGpsService:staypoint = {}", result);
+		JSONObject resultobject = JSONObject.parseObject(result);
+		
+		if (resultobject.getInteger("status") == 0) {
+			return resultobject.getJSONObject("result").getString("formatted_address");
+		}
+		return null;
+		
 	}
 	/*
 	 * 调用百度http请求,当百度内部出现异常,重试三次

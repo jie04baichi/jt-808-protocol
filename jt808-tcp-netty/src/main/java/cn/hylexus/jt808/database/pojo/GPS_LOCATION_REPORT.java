@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class GPS_LOCATION_REPORT{
-	private int ID;
+	private String ID;
 	private String phone;
 	private int alarm_field;
 	private int status_field;

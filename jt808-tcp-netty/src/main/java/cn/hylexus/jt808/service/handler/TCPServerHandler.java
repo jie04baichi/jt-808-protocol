@@ -13,8 +13,10 @@ import cn.hylexus.jt808.common.PackageData;
 import cn.hylexus.jt808.common.Session;
 import cn.hylexus.jt808.common.TPMSConsts;
 import cn.hylexus.jt808.database.DBTools;
+import cn.hylexus.jt808.database.dao.GPS_ALARM_STATUS_DAO;
 import cn.hylexus.jt808.database.dao.GPS_LOCATION_REPORT_DAO;
 import cn.hylexus.jt808.database.dao.GpsRegisterInfoDao;
+import cn.hylexus.jt808.database.pojo.GPS_ALARM_STATUS;
 import cn.hylexus.jt808.database.pojo.GPS_LOCATION_REPORT;
 import cn.hylexus.jt808.database.pojo.GpsRegisterInfo;
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
@@ -175,9 +177,10 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 				this.msgProcessService.processLocationInfoUploadMsg(locationInfoUploadMsg);
 				//将终端位置信息上传到百度数据库中
 				BaiduUploadService.addpoint(header, locationInfoUploadMsg);
-				//将数据入库
-				GPS_LOCATION_REPORT_DAO dao =  session.getMapper(GPS_LOCATION_REPORT_DAO.class);
+				//将gps位置数据入库
+				GPS_LOCATION_REPORT_DAO location_dao =  session.getMapper(GPS_LOCATION_REPORT_DAO.class);
 				GPS_LOCATION_REPORT location = new GPS_LOCATION_REPORT();
+				location.setID(MD5Utils.MD5Encode(locationInfoUploadMsg.toString(), MD5Utils.salt));
 				location.setAlarm_field(locationInfoUploadMsg.getWarningFlagField());
 				location.setStatus_field(locationInfoUploadMsg.getStatusField());
 				location.setLatitude(locationInfoUploadMsg.getLatitude());
@@ -187,7 +190,23 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 				location.setPhone(header.getTerminalPhone());
 				location.setLoc_time(locationInfoUploadMsg.getTime());
 				location.setCreate_time(new Date());
-				dao.save(location);
+				location_dao.save(location);
+				//报警信息入库
+				int alert_field = locationInfoUploadMsg.getWarningFlagField();
+				int flag = (alert_field & 0x40)>>>6;
+				if (flag == 1) {
+					//1：终端主电源⽋压
+					GPS_ALARM_STATUS_DAO alarm_dao = session.getMapper(GPS_ALARM_STATUS_DAO.class);
+					GPS_ALARM_STATUS alarm_info = new GPS_ALARM_STATUS();
+					alarm_info.setAlarm_code("欠压报警");
+					alarm_info.setAlarm_time(locationInfoUploadMsg.getTime());
+					alarm_info.setPhone(header.getTerminalPhone());
+					//alarm_info.setImsi(imsi);
+					alarm_info.setLatitude(locationInfoUploadMsg.getLatitude());
+					alarm_info.setLongitude(locationInfoUploadMsg.getLongitude());
+					alarm_info.setPoi(BaiduUploadService.geocoder_location(locationInfoUploadMsg.getLongitude(), locationInfoUploadMsg.getLatitude()));
+					alarm_dao.save(alarm_info);
+				}
 				session.commit();
 				logger.info("<<<<<[位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
 			} catch (Exception e) {

@@ -3,7 +3,7 @@
 <mapper namespace="cn.hylexus.jt808.database.dao.GPS_LOCATION_REPORT_DAO">
 
 	<resultMap id="BaseResultMap" type="cn.hylexus.jt808.database.pojo.GPS_LOCATION_REPORT">
-		<id column="ID" property="ID" jdbcType="INTEGER" />
+		<id column="ID" property="ID" jdbcType="VARCHAR" />
 		<result column="phone" property="phone" jdbcType="VARCHAR" />
 		<result column="alarm_field" property="alarm_field" jdbcType="INTEGER" />
 		<result column="status_field" property="status_field" jdbcType="INTEGER" />
@@ -24,7 +24,7 @@
 		useGeneratedKeys="true" keyProperty="ID">
 		insert into GPS_LOCATION_REPORT(ID, phone, alarm_field, status_field,latitude, longitude, elevation, speed, direction,loc_time,create_time)
 		values(
-			#{ID,jdbcType=INTEGER},
+			#{ID,jdbcType=VARCHAR},
 			#{phone,jdbcType=VARCHAR},
 			#{alarm_field,jdbcType=INTEGER},
 			#{status_field,jdbcType=INTEGER},
