@@ -1,15 +1,34 @@
 package cn.hylexus.jt808.util;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
+
+import cn.hylexus.jt808.service.BaiduUploadService;
+
 import java.util.TreeMap;
 
 //java版计算signature签名
 public class BaiduSnCal {
+	private static final String PROPERTIES_NAME = "application.properties";
+	private  static String sk;
+
+	static{
+		Properties properties = new Properties();
+		try {
+			InputStream in = BaiduUploadService.class.getClassLoader().getResourceAsStream(PROPERTIES_NAME);
+			properties.load(in);
+			sk = properties.getProperty("baidu.app.sk");
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
         public static String work(String url_prefix,Map paramsMap) throws UnsupportedEncodingException,
                         NoSuchAlgorithmException {
                 BaiduSnCal snCal = new BaiduSnCal();
@@ -33,7 +52,7 @@ public class BaiduSnCal {
                 String paramsStr = snCal.toQueryString(paramsMap);
                 
                 // 对paramsStr前面拼接上/geocoder/v2/?，后面直接拼接yoursk得到/geocoder/v2/?address=%E7%99%BE%E5%BA%A6%E5%A4%A7%E5%8E%A6&output=json&ak=yourakyoursk
-                String wholeStr = new String(url_prefix+"?" + paramsStr + "9stABdl7H4wvPnbtO9RCdFC7h1DqjFex");
+                String wholeStr = new String(url_prefix+"?" + paramsStr + sk);
                 // 对上面wholeStr再作utf8编码
                 String tempStr = URLEncoder.encode(wholeStr, "UTF-8");
 

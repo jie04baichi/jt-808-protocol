@@ -1,9 +1,14 @@
 package cn.hylexus.jt808.service;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -20,10 +25,25 @@ public class BaiduUploadService {
 	
 	private final static Logger log = LoggerFactory.getLogger(BaiduUploadService.class);
 	
+	private  static String ak;
+	private  static String service_id;
+	private static final String PROPERTIES_NAME = "application.properties";
+	static{
+		Properties properties = new Properties();
+		try {
+			InputStream in = BaiduUploadService.class.getClassLoader().getResourceAsStream(PROPERTIES_NAME);
+			properties.load(in);
+			ak = properties.getProperty("baidu.app.ak");
+			service_id = properties.getProperty("baidu.app.serviceid");
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+	
 	public static void addpoint(MsgHeader header,LocationInfoUploadMsg locationInfoUploadMsg) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		Map<String,Object> paramMap = new TreeMap<String, Object>();
-		paramMap.put("ak", "aElWRH5ayr3b6fGBlyjZH0z9o857Y8aI");
-		paramMap.put("service_id", "162014");
+		paramMap.put("ak", ak);
+		paramMap.put("service_id", service_id);
 		paramMap.put("entity_name", header.getTerminalPhone());
 		paramMap.put("latitude", String.valueOf(locationInfoUploadMsg.getLatitude()/1000000.00));
 		paramMap.put("longitude", String.valueOf(locationInfoUploadMsg.getLongitude()/1000000.00));
@@ -45,7 +65,7 @@ public class BaiduUploadService {
 		String location = latitude+","+longitude;
 		paramMap.put("location", location);
 		paramMap.put("output", "json");
-		paramMap.put("ak", "aElWRH5ayr3b6fGBlyjZH0z9o857Y8aI");
+		paramMap.put("ak", ak);
 
 		String sn = BaiduSnCal.work("/geocoder/v2/", paramMap);
 		paramMap.put("sn", sn);
