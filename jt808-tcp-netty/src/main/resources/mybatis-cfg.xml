@@ -42,6 +42,7 @@
          <package name="org.mybatis.builder"/>   --> 
          <mapper resource="mapper/GpsLocationReportMapper.xml"/>
          <mapper resource="mapper/GpsAlarmStatusMapper.xml"/>
+         <mapper resource="mapper/GPSMapper.xml"/>
          <mapper resource="mapper/GpsRegisterInfoMapper.xml"/>
      </mappers>  
 </configuration>  

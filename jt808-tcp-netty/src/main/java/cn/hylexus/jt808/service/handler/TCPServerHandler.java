@@ -13,10 +13,12 @@ import cn.hylexus.jt808.common.PackageData;
 import cn.hylexus.jt808.common.Session;
 import cn.hylexus.jt808.common.TPMSConsts;
 import cn.hylexus.jt808.database.DBTools;
+import cn.hylexus.jt808.database.dao.GPSDao;
 import cn.hylexus.jt808.database.dao.GpsAlarmStatusDao;
 import cn.hylexus.jt808.database.dao.GpsLocationReportDao;
 import cn.hylexus.jt808.database.dao.GpsRegisterInfoDao;
 import cn.hylexus.jt808.database.pojo.AlarmCode;
+import cn.hylexus.jt808.database.pojo.GPS;
 import cn.hylexus.jt808.database.pojo.GpsAlarmStatus;
 import cn.hylexus.jt808.database.pojo.GpsLocationReport;
 import cn.hylexus.jt808.database.pojo.GpsRegisterInfo;
@@ -197,16 +199,24 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 				int flag = (alert_field & 0x40)>>>6;
 				if (flag == 1) {
 					//1：终端主电源⽋压
-					GpsAlarmStatusDao alarm_dao = session.getMapper(GpsAlarmStatusDao.class);
-					GpsAlarmStatus alarm_info = new GpsAlarmStatus();
-					alarm_info.setAlarm_code(AlarmCode.UNVOLTAGEALARM);
-					alarm_info.setAlarm_time(locationInfoUploadMsg.getTime());
-					alarm_info.setPhone(header.getTerminalPhone());
-					//alarm_info.setImsi(imsi);
-					alarm_info.setLatitude(locationInfoUploadMsg.getLatitude());
-					alarm_info.setLongitude(locationInfoUploadMsg.getLongitude());
-					alarm_info.setPoi(BaiduUploadService.geocoder_location(locationInfoUploadMsg.getLongitude(), locationInfoUploadMsg.getLatitude()));
-					alarm_dao.save(alarm_info);
+					GPSDao gpsDao = session.getMapper(GPSDao.class);
+					GPS gps = gpsDao.findByPhone(header.getTerminalPhone());
+					if (gps != null) {
+						GpsAlarmStatusDao alarm_dao = session.getMapper(GpsAlarmStatusDao.class);
+						GpsAlarmStatus alarm_info = new GpsAlarmStatus();
+						alarm_info.setCar_id(gps.getCarId());
+						alarm_info.setStore_id(gps.getStoreId());
+						alarm_info.setAlarm_code(AlarmCode.UNVOLTAGEALARM);
+						alarm_info.setAlarm_time(locationInfoUploadMsg.getTime());
+						//alarm_info.setPhone(header.getTerminalPhone());
+						//alarm_info.setImsi(imsi);
+						alarm_info.setLatitude(locationInfoUploadMsg.getLatitude());
+						alarm_info.setLongitude(locationInfoUploadMsg.getLongitude());
+						alarm_info.setPoi(BaiduUploadService.geocoder_location(locationInfoUploadMsg.getLongitude(), locationInfoUploadMsg.getLatitude()));
+						alarm_dao.save(alarm_info);
+					}else {
+						logger.info("终端手机号={}没有绑定车辆.", header.getTerminalPhone());
+					}
 				}
 				session.commit();
 				logger.info("<<<<<[位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());

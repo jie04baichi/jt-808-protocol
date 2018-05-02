@@ -4,7 +4,8 @@
 
 	<resultMap id="BaseResultMap" type="cn.hylexus.jt808.database.pojo.GpsAlarmStatus">
 		<id column="ID" property="ID" jdbcType="INTEGER" />
-		<result column="phone" property="phone" jdbcType="VARCHAR" />
+		<result column="car_id" property="car_id" jdbcType="INTEGER" />
+		<result column="store_id" property="store_id" jdbcType="INTEGER" />
 		<result column="alarm_code" property="alarm_code" jdbcType="VARCHAR" />
 		<result column="latitude" property="latitude" jdbcType="INTEGER" />
 		<result column="longitude" property="longitude" jdbcType="INTEGER" />
@@ -13,15 +14,16 @@
 	</resultMap>
 
 	<sql id="Column_List">
-		ID, phone, alarm_code,latitude, longitude, poi, alarm_time
+		ID, car_id, store_id, alarm_code,latitude, longitude, poi, alarm_time
 	</sql>
 
 	<insert id="save" parameterType="cn.hylexus.jt808.database.pojo.GpsAlarmStatus"
 		useGeneratedKeys="true" keyProperty="ID">
-		insert into GPS_ALARM_STATUS(ID, phone, alarm_code,latitude, longitude, poi, alarm_time)
+		insert into GPS_ALARM_STATUS(ID, car_id, store_id, alarm_code,latitude, longitude, poi, alarm_time)
 		values(
 			#{ID,jdbcType=INTEGER},
-			#{phone,jdbcType=VARCHAR},
+			#{car_id,jdbcType=INTEGER},
+			#{store_id,jdbcType=INTEGER},
 			#{alarm_code,jdbcType=VARCHAR},
 			#{latitude,jdbcType=INTEGER},
 			#{longitude,jdbcType=INTEGER},
