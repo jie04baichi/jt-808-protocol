@@ -40,8 +40,8 @@
          <mapper resource="com/cy/mybatis/mapper/UserMapper.xml"/>-->  
          <!-- 告知映射文件方式2，自动扫描包内的Mapper接口与配置文件 
          <package name="org.mybatis.builder"/>   --> 
-         <mapper resource="mapper/GPS_LOCATION_REPORTMapper.xml"/>
-         <mapper resource="mapper/GPS_ALARM_STATUSMapper.xml"/>
+         <mapper resource="mapper/GpsLocationReportMapper.xml"/>
+         <mapper resource="mapper/GpsAlarmStatusMapper.xml"/>
          <mapper resource="mapper/GpsRegisterInfoMapper.xml"/>
      </mappers>  
 </configuration>  
