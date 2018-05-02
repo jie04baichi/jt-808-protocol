@@ -4,7 +4,7 @@ import java.util.Date;
 
 import lombok.Data;
 @Data
-public class GPS_ALARM_STATUS {
+public class GpsAlarmStatus {
 	/*
 	   ID                   int not null,
 	   phone                varchar(16),

@@ -5,7 +5,7 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class GPS_LOCATION_REPORT{
+public class GpsLocationReport{
 	private String ID;
 	private String phone;
 	private int alarm_field;

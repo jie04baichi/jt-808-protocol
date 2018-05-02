@@ -13,12 +13,12 @@ import cn.hylexus.jt808.common.PackageData;
 import cn.hylexus.jt808.common.Session;
 import cn.hylexus.jt808.common.TPMSConsts;
 import cn.hylexus.jt808.database.DBTools;
-import cn.hylexus.jt808.database.dao.GPS_ALARM_STATUS_DAO;
-import cn.hylexus.jt808.database.dao.GPS_LOCATION_REPORT_DAO;
+import cn.hylexus.jt808.database.dao.GpsAlarmStatusDao;
+import cn.hylexus.jt808.database.dao.GpsLocationReportDao;
 import cn.hylexus.jt808.database.dao.GpsRegisterInfoDao;
 import cn.hylexus.jt808.database.pojo.AlarmCode;
-import cn.hylexus.jt808.database.pojo.GPS_ALARM_STATUS;
-import cn.hylexus.jt808.database.pojo.GPS_LOCATION_REPORT;
+import cn.hylexus.jt808.database.pojo.GpsAlarmStatus;
+import cn.hylexus.jt808.database.pojo.GpsLocationReport;
 import cn.hylexus.jt808.database.pojo.GpsRegisterInfo;
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.server.SessionManager;
@@ -179,8 +179,8 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 				//将终端位置信息上传到百度数据库中
 				BaiduUploadService.addpoint(header, locationInfoUploadMsg);
 				//将gps位置数据入库
-				GPS_LOCATION_REPORT_DAO location_dao =  session.getMapper(GPS_LOCATION_REPORT_DAO.class);
-				GPS_LOCATION_REPORT location = new GPS_LOCATION_REPORT();
+				GpsLocationReportDao location_dao =  session.getMapper(GpsLocationReportDao.class);
+				GpsLocationReport location = new GpsLocationReport();
 				location.setID(MD5Utils.MD5Encode(locationInfoUploadMsg.toString(), MD5Utils.salt));
 				location.setAlarm_field(locationInfoUploadMsg.getWarningFlagField());
 				location.setStatus_field(locationInfoUploadMsg.getStatusField());
@@ -197,8 +197,8 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 				int flag = (alert_field & 0x40)>>>6;
 				if (flag == 1) {
 					//1：终端主电源⽋压
-					GPS_ALARM_STATUS_DAO alarm_dao = session.getMapper(GPS_ALARM_STATUS_DAO.class);
-					GPS_ALARM_STATUS alarm_info = new GPS_ALARM_STATUS();
+					GpsAlarmStatusDao alarm_dao = session.getMapper(GpsAlarmStatusDao.class);
+					GpsAlarmStatus alarm_info = new GpsAlarmStatus();
 					alarm_info.setAlarm_code(AlarmCode.UNVOLTAGEALARM);
 					alarm_info.setAlarm_time(locationInfoUploadMsg.getTime());
 					alarm_info.setPhone(header.getTerminalPhone());

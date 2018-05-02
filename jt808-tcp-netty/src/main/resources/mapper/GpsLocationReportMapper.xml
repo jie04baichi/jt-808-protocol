@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="cn.hylexus.jt808.database.dao.GPS_LOCATION_REPORT_DAO">
+<mapper namespace="cn.hylexus.jt808.database.dao.GpsLocationReportDao">
 
-	<resultMap id="BaseResultMap" type="cn.hylexus.jt808.database.pojo.GPS_LOCATION_REPORT">
+	<resultMap id="BaseResultMap" type="cn.hylexus.jt808.database.pojo.GpsLocationReport">
 		<id column="ID" property="ID" jdbcType="VARCHAR" />
 		<result column="phone" property="phone" jdbcType="VARCHAR" />
 		<result column="alarm_field" property="alarm_field" jdbcType="INTEGER" />
@@ -20,7 +20,7 @@
 		ID, phone, alarm_field, status_field,latitude, longitude, elevation, speed, direction,loc_time,create_time
 	</sql>
 
-	<insert id="save" parameterType="cn.hylexus.jt808.database.pojo.GPS_LOCATION_REPORT"
+	<insert id="save" parameterType="cn.hylexus.jt808.database.pojo.GpsLocationReport"
 		useGeneratedKeys="true" keyProperty="ID">
 		insert into GPS_LOCATION_REPORT(ID, phone, alarm_field, status_field,latitude, longitude, elevation, speed, direction,loc_time,create_time)
 		values(
