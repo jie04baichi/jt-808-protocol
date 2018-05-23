@@ -41,7 +41,7 @@ public class BaiduUploadService {
 	}
 	
 	public static void addpoint(MsgHeader header,LocationInfoUploadMsg locationInfoUploadMsg) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-		Map<String,Object> paramMap = new TreeMap<String, Object>();
+		Map<String,String> paramMap = new TreeMap<String, String>();
 		paramMap.put("ak", ak);
 		paramMap.put("service_id", service_id);
 		paramMap.put("entity_name", header.getTerminalPhone());
@@ -61,7 +61,7 @@ public class BaiduUploadService {
 	public static  String geocoder_location(double longitude,double latitude) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		//http://api.map.baidu.com/geocoder/v2/?
 		//location=39.934%2C116.329&output=json&ak=aElWRH5ayr3b6fGBlyjZH0z9o857Y8aI&sn=1b8f3a698cd1002588beef23e73f2284
-		Map<String,Object> paramMap = new LinkedHashMap<String, Object>();
+		Map<String,String> paramMap = new LinkedHashMap<String, String>();
 		String location = latitude+","+longitude;
 		paramMap.put("location", location);
 		paramMap.put("output", "json");
@@ -83,16 +83,16 @@ public class BaiduUploadService {
 	/*
 	 * 调用百度http请求,当百度内部出现异常,重试三次
 	 */
-	private static String invoke_baidu_http(String url, Map params, HTTP_TYPE type){
+	private static String invoke_baidu_http(String url, Map<String,String> params, HTTP_TYPE type){
 		
 		String result = null;
 		boolean work = true;
 		int count = 1; //不进行重试
 		while (work&&count>0) {
 			if (type == HTTP_TYPE.GET) {
-				result = HttpUtils.httpGet(url, params);
+				result = HttpUtils.get(url, params, null);
 			}else {
-				result = HttpUtils.httpPost(url, params);
+				result = HttpUtils.postFrom(url, params);
 			}
 			JSONObject resultobject = JSONObject.parseObject(result);
 			//百度内部出现异常,可能是超时引起
