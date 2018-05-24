@@ -18,6 +18,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.util.HttpUtils;
+import cn.hylexus.jt808.util.RunnerUtils;
 import cn.hylexus.jt808.util.BaiduSnCal;
 import cn.hylexus.jt808.vo.req.LocationInfoUploadMsg;
 
@@ -55,8 +56,14 @@ public class BaiduUploadService {
 		String sn = BaiduSnCal.work("/api/v3/track/addpoint", paramMap);
 		paramMap.put("sn", sn);
 		String baidu_api_url = "http://yingyan.baidu.com/api/v3/track/addpoint";
-		String result = invoke_baidu_http(baidu_api_url, paramMap,HTTP_TYPE.POST);
-		log.info("BaiduUploadService:addpoint = {}", result);
+		RunnerUtils.submit(new Runnable() {
+			@Override
+			public void run() {
+				String result = invoke_baidu_http(baidu_api_url, paramMap,HTTP_TYPE.POST);
+				log.info("BaiduUploadService:addpoint = {}", result);
+			}
+		});
+
 	}
 	public static  String geocoder_location(double longitude,double latitude) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		//http://api.map.baidu.com/geocoder/v2/?
