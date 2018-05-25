@@ -1,15 +1,13 @@
 package cn.hylexus.jt808.service;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,15 +15,30 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
-import cn.hylexus.jt808.util.HttpUtils;
-import cn.hylexus.jt808.util.RunnerUtils;
+import cn.hylexus.jt808.service.baidu.trace.LBSTraceClient;
+import cn.hylexus.jt808.service.baidu.trace.api.track.AddPointRequest;
+import cn.hylexus.jt808.service.baidu.trace.api.track.UploadResponse;
+import cn.hylexus.jt808.service.baidu.trace.model.CoordType;
+import cn.hylexus.jt808.service.baidu.trace.model.LatLng;
+import cn.hylexus.jt808.service.baidu.trace.model.OnUploadListener;
+import cn.hylexus.jt808.service.baidu.trace.model.TrackPoint;
 import cn.hylexus.jt808.util.BaiduSnCal;
+import cn.hylexus.jt808.util.HttpUtils;
 import cn.hylexus.jt808.vo.req.LocationInfoUploadMsg;
 
 public class BaiduUploadService {
 	
-	private final static Logger log = LoggerFactory.getLogger(BaiduUploadService.class);
+	private final static Logger logger = LoggerFactory.getLogger(BaiduUploadService.class);
 	
+    private static AtomicLong mSequenceGenerator = new AtomicLong();
+
+    private static AtomicInteger successCounter = new AtomicInteger();
+
+    private static AtomicInteger failedCounter = new AtomicInteger();
+    
+    private static LBSTraceClient client = LBSTraceClient.getInstance();
+
+    
 	private  static String ak;
 	private  static String service_id;
 	private static final String PROPERTIES_NAME = "application.properties";
@@ -39,30 +52,33 @@ public class BaiduUploadService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		init();
 	}
-	
+	public static void init() {
+        client.init();
+        client.start();
+
+        client.registerUploadListener(new OnUploadListener() {
+
+            @Override
+            public void onSuccess(long responseId) {
+            	logger.info("上传成功 , MsgFlowId : " + responseId + ", successCounter : " + successCounter.incrementAndGet());
+            }
+
+            @Override
+            public void onFailed(UploadResponse response) {
+            	logger.info("上传失败 , MsgFlowId : " + response.getResponseID() + ", failedCounter : "
+                        + failedCounter.incrementAndGet() + ", " + response);
+            }
+        });
+	}
 	public static void addpoint(MsgHeader header,LocationInfoUploadMsg locationInfoUploadMsg) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-		Map<String,String> paramMap = new TreeMap<String, String>();
-		paramMap.put("ak", ak);
-		paramMap.put("service_id", service_id);
-		paramMap.put("entity_name", header.getTerminalPhone());
-		paramMap.put("latitude", String.valueOf(locationInfoUploadMsg.getLatitude()/1000000.00));
-		paramMap.put("longitude", String.valueOf(locationInfoUploadMsg.getLongitude()/1000000.00));
-		paramMap.put("loc_time", String.valueOf(locationInfoUploadMsg.getTime().getTime()/1000));
-		paramMap.put("coord_type_input", "wgs84");
-		paramMap.put("speed", String.valueOf(locationInfoUploadMsg.getSpeed()/10.00));
-		paramMap.put("direction", String.valueOf(locationInfoUploadMsg.getDirection()));
-		paramMap.put("height", String.valueOf(locationInfoUploadMsg.getElevation()));
-		String sn = BaiduSnCal.work("/api/v3/track/addpoint", paramMap);
-		paramMap.put("sn", sn);
-		String baidu_api_url = "http://yingyan.baidu.com/api/v3/track/addpoint";
-		RunnerUtils.submit(new Runnable() {
-			@Override
-			public void run() {
-				String result = invoke_baidu_http(baidu_api_url, paramMap,HTTP_TYPE.POST);
-				log.info("BaiduUploadService:addpoint = {}", result);
-			}
-		});
+		
+        TrackPoint trackPoint = new TrackPoint(new LatLng(locationInfoUploadMsg.getLatitude()/1000000.00, locationInfoUploadMsg.getLongitude()/1000000.00), CoordType.wgs84, 30,
+        		locationInfoUploadMsg.getTime().getTime()/1000, locationInfoUploadMsg.getDirection(), locationInfoUploadMsg.getSpeed()/10.00, locationInfoUploadMsg.getElevation(), null, null);
+        AddPointRequest request1 = new AddPointRequest(header.getFlowId(), ak ,Long.valueOf(service_id),
+        		header.getTerminalPhone(), trackPoint);
+        client.addPoint(request1);
 
 	}
 	public static  String geocoder_location(double longitude,double latitude) throws UnsupportedEncodingException, NoSuchAlgorithmException {
@@ -78,7 +94,7 @@ public class BaiduUploadService {
 		paramMap.put("sn", sn);
 		String baidu_api_url = "http://api.map.baidu.com/geocoder/v2/";
 		String result = invoke_baidu_http(baidu_api_url, paramMap,HTTP_TYPE.GET);
-		log.info("BaiduGpsService:staypoint = {}", result);
+		logger.info("BaiduGpsService:staypoint = {}", result);
 		JSONObject resultobject = JSONObject.parseObject(result);
 		
 		if (resultobject.getInteger("status") == 0) {
