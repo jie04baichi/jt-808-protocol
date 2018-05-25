@@ -85,7 +85,7 @@ public class BaiduUploadService {
 		//http://api.map.baidu.com/geocoder/v2/?
 		//location=39.934%2C116.329&output=json&ak=aElWRH5ayr3b6fGBlyjZH0z9o857Y8aI&sn=1b8f3a698cd1002588beef23e73f2284
 		Map<String,String> paramMap = new LinkedHashMap<String, String>();
-		String location = latitude+","+longitude;
+		String location = latitude/1000000.00+","+longitude/1000000.00;
 		paramMap.put("location", location);
 		paramMap.put("output", "json");
 		paramMap.put("ak", ak);
