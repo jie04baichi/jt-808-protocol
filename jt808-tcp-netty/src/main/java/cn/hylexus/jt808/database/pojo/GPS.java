@@ -14,9 +14,7 @@ public class GPS {
 	private String imei;
 	
 	private String imsi_type;
-		
-	private String terminal_phone;
-	
+			
 	private Date bindingAt;
 
 	private Date createdAt;

@@ -200,7 +200,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 				if (flag == 1) {
 					//1：终端主电源⽋压
 					GPSDao gpsDao = session.getMapper(GPSDao.class);
-					GPS gps = gpsDao.findByPhone(header.getTerminalPhone());
+					GPS gps = gpsDao.findByImei(header.getTerminalPhone());
 					if (gps != null) {
 						GpsAlarmStatusDao alarm_dao = session.getMapper(GpsAlarmStatusDao.class);
 						GpsAlarmStatus alarm_info = new GpsAlarmStatus();

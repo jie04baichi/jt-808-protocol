@@ -7,7 +7,6 @@
 		<result column="car_id" property="carId" jdbcType="INTEGER" />
 		<result column="imei" property="imei" jdbcType="VARCHAR" />
 		<result column="imei_type" property="imei_type" jdbcType="VARCHAR" />
-		<result column="terminal_phone" property="terminal_phone" jdbcType="VARCHAR" />
 		<result column="binding_at" property="bindingAt" jdbcType="TIMESTAMP" />
 		<result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
 		<result column="device_type" property="deviceType" jdbcType="VARCHAR" />
@@ -16,7 +15,7 @@
 	</resultMap>
 
 	<sql id="Column_List">
-		id, car_id, imei, imsi_type, terminal_phone,binding_at, created_at, device_type, store_id, status
+		id, car_id, imei, imsi_type,binding_at, created_at, device_type, store_id, status
 	</sql>
 
 	<insert id="save" parameterType="cn.hylexus.jt808.database.pojo.GPS"
@@ -40,58 +39,6 @@
 		from gps
 		where imei = #{imei,jdbcType=VARCHAR}
 	</select>
-		<select id="findByPhone" parameterType="java.lang.String"
-		resultMap="BaseResultMap">
-		select
-		<include refid="Column_List" />
-		from gps
-		where terminal_phone = #{phone,jdbcType=VARCHAR}
-	</select>
-	<select id="findCount" resultType="java.lang.Integer" >
-		select count(1) from gps
-	</select>
-	
-	<select id="findByCarId" parameterType="java.lang.Integer"
-		resultMap="BaseResultMap">
-		select
-		<include refid="Column_List" />
-		from gps
-		where car_id = #{carId,jdbcType=INTEGER}
-	</select>
-	
-	<select id="findByStoreId" parameterType="java.lang.Integer"
-		resultMap="BaseResultMap">
-		select
-		<include refid="Column_List" />
-		from gps
-		where store_id = #{storeId,jdbcType=INTEGER}
-	</select>
-	
-	<select id="findByCarIds" parameterType="java.util.List" resultMap="BaseResultMap">
-		select
-		<include refid="Column_List" />
-		from gps
-		where car_id in
-		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
-			#{item}
-		</foreach>
-	</select>
 
-	<update id="updateByCarId" parameterType="java.util.Map">
-		update gps
-		set imei = #{imei,jdbcType=VARCHAR},
-		binding_at = #{bindingAt, jdbcType =TIMESTAMP},
-		device_type = #{deviceType, jdbcType=VARCHAR}
-		where car_id = #{carId,jdbcType=INTEGER}
-	</update>
-	
-	<update id="updateStatusByImei" parameterType="java.util.Map">
-		update gps set status = #{status,jdbcType=INTEGER}
-		where imei = #{imei,jdbcType=INTEGER}
-	</update>
-	
-	<delete id="deleteByCarId" parameterType="java.lang.Integer">
-		delete from gps where car_id = #{carId,jdbcType=INTEGER}
-	</delete>
 
 </mapper>
