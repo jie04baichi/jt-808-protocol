@@ -130,7 +130,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 				GpsRegisterInfoDao registerInfoDao = sqlSession.getMapper(GpsRegisterInfoDao.class);
 				GpsRegisterInfo registerInfo = new GpsRegisterInfo();
 				registerInfo.setPhone(header.getTerminalPhone());
-				registerInfo.setImsi(msg.getTerminalRegInfo().getTerminalId());
+				registerInfo.setImsi(header.getTerminalPhone());
 				registerInfo.setImsi_type(msg.getTerminalRegInfo().getTerminalType());
 				registerInfo.setLicense(msg.getTerminalRegInfo().getLicensePlate());
 				registerInfo.setMake_brand(msg.getTerminalRegInfo().getManufacturerId());
