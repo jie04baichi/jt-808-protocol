@@ -128,20 +128,24 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 				this.msgProcessService.processRegisterMsg(msg);
 				// 保存终端注册信息
 				GpsRegisterInfoDao registerInfoDao = sqlSession.getMapper(GpsRegisterInfoDao.class);
-				GpsRegisterInfo registerInfo = new GpsRegisterInfo();
-				registerInfo.setPhone(header.getTerminalPhone());
-				registerInfo.setImsi(header.getTerminalPhone());
-				registerInfo.setImsi_type(msg.getTerminalRegInfo().getTerminalType());
-				registerInfo.setLicense(msg.getTerminalRegInfo().getLicensePlate());
-				registerInfo.setMake_brand(msg.getTerminalRegInfo().getManufacturerId());
-				registerInfo.setProvince_id(msg.getTerminalRegInfo().getProvinceId());
-				registerInfo.setCity_id(msg.getTerminalRegInfo().getCityId());
-				registerInfo.setRegister_status(1);
-				registerInfo.setOuter_color(msg.getTerminalRegInfo().getLicensePlateColor());
-				registerInfo.setCreate_time(new Date());
-				registerInfo.setAuth_token(auth_token);
-				registerInfoDao.save(registerInfo);
-				sqlSession.commit();
+				
+				if (registerInfoDao.findByPhone(phone) == null) {
+					GpsRegisterInfo registerInfo = new GpsRegisterInfo();
+					registerInfo.setPhone(header.getTerminalPhone());
+					registerInfo.setImsi(header.getTerminalPhone());
+					registerInfo.setImsi_type(msg.getTerminalRegInfo().getTerminalType());
+					registerInfo.setLicense(msg.getTerminalRegInfo().getLicensePlate());
+					registerInfo.setMake_brand(msg.getTerminalRegInfo().getManufacturerId());
+					registerInfo.setProvince_id(msg.getTerminalRegInfo().getProvinceId());
+					registerInfo.setCity_id(msg.getTerminalRegInfo().getCityId());
+					registerInfo.setRegister_status(1);
+					registerInfo.setOuter_color(msg.getTerminalRegInfo().getLicensePlateColor());
+					registerInfo.setCreate_time(new Date());
+					registerInfo.setAuth_token(auth_token);
+					registerInfoDao.save(registerInfo);
+					sqlSession.commit();
+				}
+
 				logger.info("<<<<<[终端注册],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
 			} catch (Exception e) {
 				logger.error("<<<<<[终端注册]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
