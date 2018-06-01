@@ -171,6 +171,7 @@ public class Point {
 
     public Point() {
         super();
+    	this.location = new LatLng();
     }
 
     public Point(LatLng location, CoordType coordType, double radius, long locTime, int direction, double speed,

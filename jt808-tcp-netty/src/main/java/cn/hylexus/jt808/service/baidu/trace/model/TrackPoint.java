@@ -85,4 +85,18 @@ public class TrackPoint extends Point {
                 + ", height=" + height + ", objectKey=" + objectKey + ", columns=" + columns + "]";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+    	// TODO Auto-generated method stub
+    	TrackPoint other = (TrackPoint)obj;
+    	
+    	if (this.getLocation().getLatitude() == other.getLocation().getLatitude() && 
+    		this.getLocation().getLongitude() == other.getLocation().getLongitude() && 
+    		this.getDirection() == other.getDirection() && this.getHeight() == other.getHeight() &&
+    		this.getSpeed() == other.getSpeed()) {
+			return true;
+		}
+    	
+    	return super.equals(obj);
+    }
 }

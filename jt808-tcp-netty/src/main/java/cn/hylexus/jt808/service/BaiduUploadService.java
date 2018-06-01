@@ -6,6 +6,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -13,6 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import cn.hylexus.jt808.common.PackageData.MsgHeader;
 import cn.hylexus.jt808.service.baidu.trace.LBSTraceClient;
@@ -35,6 +40,8 @@ public class BaiduUploadService {
     private static AtomicInteger successCounter = new AtomicInteger();
 
     private static AtomicInteger failedCounter = new AtomicInteger();
+    
+    private static LoadingCache<String, TrackPoint> currentTrack = null;
     
     private static LBSTraceClient client = LBSTraceClient.getInstance();
 
@@ -71,11 +78,30 @@ public class BaiduUploadService {
                         + failedCounter.incrementAndGet() + ", " + response);
             }
         });
+        
+        currentTrack = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES)
+                .build(new CacheLoader<String, TrackPoint>() {
+                    @Override
+                    public TrackPoint load(String arg0) throws Exception {
+                        return new TrackPoint();
+                    }
+                });
 	}
-	public static void addpoint(MsgHeader header,LocationInfoUploadMsg locationInfoUploadMsg) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+	public static void addpoint(MsgHeader header,LocationInfoUploadMsg locationInfoUploadMsg) throws UnsupportedEncodingException, NoSuchAlgorithmException, ExecutionException {
 		
         TrackPoint trackPoint = new TrackPoint(new LatLng(locationInfoUploadMsg.getLatitude()/1000000.00, locationInfoUploadMsg.getLongitude()/1000000.00), CoordType.wgs84, 30,
         		locationInfoUploadMsg.getTime().getTime()/1000, locationInfoUploadMsg.getDirection(), locationInfoUploadMsg.getSpeed()/10.00, locationInfoUploadMsg.getElevation(), null, null);
+        
+    	TrackPoint cachePoint = currentTrack.get(header.getTerminalPhone());
+    	if (cachePoint.equals(trackPoint)) {
+    		logger.info("设备【"+header.getTerminalPhone() + "】定位数据持续相同，不上传至百度");
+			return;
+		}else {
+			logger.info("加入内存：currentTrack 【】 " + trackPoint);
+			currentTrack.put(header.getTerminalPhone(), trackPoint);
+		}
+
+        
         AddPointRequest request1 = new AddPointRequest(header.getFlowId(), ak ,Long.valueOf(service_id),
         		header.getTerminalPhone(), trackPoint);
         client.addPoint(request1);
